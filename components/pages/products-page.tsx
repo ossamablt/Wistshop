@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import { motion } from "framer-motion"
 import { Filter, Grid, List, Search, SlidersHorizontal, Star } from "lucide-react"
 import { UpdatedHeader } from "@/components/layout/updated-header"
@@ -14,23 +14,43 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { ProductCard } from "@/components/product/product-card"
-import { products } from "@/lib/mock-data"
-import type { Filter as FilterType } from "@/lib/types"
+import { getProducts } from "@/services/products"
+import type { Product } from "@/services/products"
+
+interface FilterType {
+  categories: string[];
+  priceRange: [number, number];
+  inStock: boolean;
+}
 
 export function ProductsPage() {
+  const [products, setProducts] = useState<Product[]>([])
+  const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState("")
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
   const [sortBy, setSortBy] = useState("featured")
   const [filters, setFilters] = useState<FilterType>({
     categories: [],
-    brands: [],
     priceRange: [0, 1000],
-    rating: 0,
     inStock: false,
   })
 
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setLoading(true)
+        const productsData = await getProducts()
+        setProducts(productsData)
+      } catch (error) {
+        console.error("Error fetching products:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchProducts()
+  }, [])
+
   const categories = Array.from(new Set(products.map((p) => p.category)))
-  const brands = Array.from(new Set(products.map((p) => p.brand)))
 
   const filteredProducts = useMemo(() => {
     const filtered = products.filter((product) => {
@@ -44,23 +64,13 @@ export function ProductsPage() {
         return false
       }
 
-      // Brand filter
-      if (filters.brands.length > 0 && !filters.brands.includes(product.brand)) {
-        return false
-      }
-
       // Price filter
       if (product.price < filters.priceRange[0] || product.price > filters.priceRange[1]) {
         return false
       }
 
-      // Rating filter
-      if (product.rating < filters.rating) {
-        return false
-      }
-
       // Stock filter
-      if (filters.inStock && !product.inStock) {
+      if (filters.inStock && product.stock <= 0) {
         return false
       }
 
@@ -75,11 +85,8 @@ export function ProductsPage() {
       case "price-high":
         filtered.sort((a, b) => b.price - a.price)
         break
-      case "rating":
-        filtered.sort((a, b) => b.rating - a.rating)
-        break
       case "newest":
-        filtered.sort((a, b) => (b.tags.includes("New") ? 1 : 0) - (a.tags.includes("New") ? 1 : 0))
+        filtered.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0))
         break
       default:
         // Featured - keep original order
@@ -87,7 +94,7 @@ export function ProductsPage() {
     }
 
     return filtered
-  }, [searchQuery, filters, sortBy])
+  }, [searchQuery, filters, sortBy, products])
 
   const updateFilter = (key: keyof FilterType, value: any) => {
     setFilters((prev) => ({ ...prev, [key]: value }))
@@ -98,13 +105,6 @@ export function ProductsPage() {
       ? filters.categories.filter((c) => c !== category)
       : [...filters.categories, category]
     updateFilter("categories", newCategories)
-  }
-
-  const toggleBrand = (brand: string) => {
-    const newBrands = filters.brands.includes(brand)
-      ? filters.brands.filter((b) => b !== brand)
-      : [...filters.brands, brand]
-    updateFilter("brands", newBrands)
   }
 
   const FilterSidebar = () => (
@@ -122,25 +122,6 @@ export function ProductsPage() {
               />
               <label htmlFor={category} className="text-sm cursor-pointer">
                 {category}
-              </label>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Brands */}
-      <div>
-        <h3 className="font-semibold mb-3">Brands</h3>
-        <div className="space-y-2">
-          {brands.map((brand) => (
-            <div key={brand} className="flex items-center space-x-2">
-              <Checkbox
-                id={brand}
-                checked={filters.brands.includes(brand)}
-                onCheckedChange={() => toggleBrand(brand)}
-              />
-              <label htmlFor={brand} className="text-sm cursor-pointer">
-                {brand}
               </label>
             </div>
           ))}
@@ -166,33 +147,6 @@ export function ProductsPage() {
         </div>
       </div>
 
-      {/* Rating */}
-      <div>
-        <h3 className="font-semibold mb-3">Minimum Rating</h3>
-        <div className="space-y-2">
-          {[4, 3, 2, 1].map((rating) => (
-            <div key={rating} className="flex items-center space-x-2">
-              <Checkbox
-                id={`rating-${rating}`}
-                checked={filters.rating === rating}
-                onCheckedChange={() => updateFilter("rating", filters.rating === rating ? 0 : rating)}
-              />
-              <label htmlFor={`rating-${rating}`} className="flex items-center space-x-1 text-sm cursor-pointer">
-                <div className="flex">
-                  {[...Array(5)].map((_, i) => (
-                    <Star
-                      key={i}
-                      className={`h-3 w-3 ${i < rating ? "fill-yellow-400 text-yellow-400" : "text-gray-300"}`}
-                    />
-                  ))}
-                </div>
-                <span>& up</span>
-              </label>
-            </div>
-          ))}
-        </div>
-      </div>
-
       {/* In Stock */}
       <div className="flex items-center space-x-2">
         <Checkbox
@@ -206,6 +160,17 @@ export function ProductsPage() {
       </div>
     </div>
   )
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div>
+          <p className="mt-4">Loading products...</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -223,7 +188,7 @@ export function ProductsPage() {
                 <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
                 <Input
                   type="search"
-                  placeholder="Search for products, brands, categories..."
+                  placeholder="Search for products..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-12 pr-4 py-3 text-lg bg-white text-black"
@@ -240,16 +205,14 @@ export function ProductsPage() {
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
               <div className="flex items-center space-x-4">
                 <h2 className="text-2xl font-bold">{filteredProducts.length} Products</h2>
-                {(filters.categories.length > 0 || filters.brands.length > 0 || filters.rating > 0) && (
+                {filters.categories.length > 0 && (
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() =>
                       setFilters({
                         categories: [],
-                        brands: [],
                         priceRange: [0, 1000],
-                        rating: 0,
                         inStock: false,
                       })
                     }
@@ -270,7 +233,6 @@ export function ProductsPage() {
                     <SelectItem value="newest">Newest</SelectItem>
                     <SelectItem value="price-low">Price: Low to High</SelectItem>
                     <SelectItem value="price-high">Price: High to Low</SelectItem>
-                    <SelectItem value="rating">Highest Rated</SelectItem>
                   </SelectContent>
                 </Select>
 
@@ -314,7 +276,7 @@ export function ProductsPage() {
             </div>
 
             {/* Active Filters */}
-            {(filters.categories.length > 0 || filters.brands.length > 0 || filters.rating > 0) && (
+            {filters.categories.length > 0 && (
               <div className="flex flex-wrap gap-2 mb-6">
                 {filters.categories.map((category) => (
                   <Badge
@@ -326,16 +288,6 @@ export function ProductsPage() {
                     {category} ×
                   </Badge>
                 ))}
-                {filters.brands.map((brand) => (
-                  <Badge key={brand} variant="secondary" className="cursor-pointer" onClick={() => toggleBrand(brand)}>
-                    {brand} ×
-                  </Badge>
-                ))}
-                {filters.rating > 0 && (
-                  <Badge variant="secondary" className="cursor-pointer" onClick={() => updateFilter("rating", 0)}>
-                    {filters.rating}+ Stars ×
-                  </Badge>
-                )}
               </div>
             )}
 

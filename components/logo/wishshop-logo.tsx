@@ -107,8 +107,8 @@ export function WishShopLogo({ size = "md", variant = "full", animated = true, c
       transition={{ duration: 0.6, delay: 0.2 }}
     >
       <span className="relative">
-        Wish
-        <span className="text-pink-500">Shop</span>
+       
+        <span className="text-pink-500"> WistShop</span>
         {animated && (
           <motion.div
             animate={{
