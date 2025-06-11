@@ -3,7 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import { motion, AnimatePresence } from "framer-motion"
-import { Search, ShoppingCart, User, Menu, X, Heart, Bell } from "lucide-react"
+import { Search, ShoppingCart, User, Menu, X, Heart, Bell, LogOut, Settings, UserCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
@@ -12,6 +12,15 @@ import { useAuth } from "@/lib/auth-context"
 import { AuthModal } from "@/components/auth/auth-modal"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { WishShopLogo } from "@/components/logo/wishshop-logo"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { useToast } from "@/hooks/use-toast"
 
 export function UpdatedHeader() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -19,6 +28,23 @@ export function UpdatedHeader() {
   const [searchQuery, setSearchQuery] = useState("")
   const { itemCount } = useCart()
   const { user, logout } = useAuth()
+  const { toast } = useToast()
+
+  const handleLogout = async () => {
+    try {
+      await logout()
+      toast({
+        title: "Logged out successfully",
+        description: "Come back soon!",
+      })
+    } catch (error) {
+      toast({
+        title: "Error logging out",
+        description: "Please try again.",
+        variant: "destructive",
+      })
+    }
+  }
 
   const navigation = [
     { name: "Home", href: "/" },
@@ -67,50 +93,75 @@ export function UpdatedHeader() {
           </div>
 
           {/* Right Actions */}
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center gap-2">
             <ThemeToggle />
-
-            {/* Notifications */}
-            <Button variant="ghost" size="icon" className="relative">
-              <Bell className="h-5 w-5" />
-              <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs">3</Badge>
-            </Button>
-
-            {/* Wishlist */}
-            <Button variant="ghost" size="icon" className="relative">
-              <Heart className="h-5 w-5" />
-              <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs">5</Badge>
-            </Button>
-
-            {/* Cart */}
-            <Link href="/cart">
-              <Button variant="ghost" size="icon" className="relative">
-                <ShoppingCart className="h-5 w-5" />
-                {itemCount > 0 && (
-                  <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="absolute -top-1 -right-1">
-                    <Badge className="h-5 w-5 flex items-center justify-center p-0 text-xs pulse-glow">
-                      {itemCount}
-                    </Badge>
-                  </motion.div>
-                )}
-              </Button>
-            </Link>
-
-            {/* User Menu */}
             {user ? (
-              <div className="flex items-center space-x-2">
-                <span className="hidden md:block text-sm">Hi, {user.name}</span>
-                <Button variant="ghost" size="icon" onClick={logout}>
+              <>
+                <Button variant="ghost" size="icon" className="relative">
+                  <Heart className="h-5 w-5" />
+                  <Badge className="absolute -top-1 -right-1 h-4 w-4 p-0 flex items-center justify-center">
+                    0
+                  </Badge>
+                </Button>
+                <Button variant="ghost" size="icon" className="relative">
+                  <Bell className="h-5 w-5" />
+                  <Badge className="absolute -top-1 -right-1 h-4 w-4 p-0 flex items-center justify-center">
+                    0
+                  </Badge>
+                </Button>
+                <Button variant="ghost" size="icon" className="relative">
+                  <ShoppingCart className="h-5 w-5" />
+                  <Badge className="absolute -top-1 -right-1 h-4 w-4 p-0 flex items-center justify-center">
+                    {itemCount}
+                  </Badge>
+                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon">
+                      <User className="h-5 w-5" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56">
+                    <DropdownMenuLabel className="font-normal">
+                      <div className="flex flex-col space-y-1">
+                        <p className="text-sm font-medium leading-none">{user.name}</p>
+                        <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
+                      </div>
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link href="/profile" className="cursor-pointer">
+                        <UserCircle className="mr-2 h-4 w-4" />
+                        <span>Profile</span>
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/settings" className="cursor-pointer">
+                        <Settings className="mr-2 h-4 w-4" />
+                        <span>Settings</span>
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-red-600">
+                      <LogOut className="mr-2 h-4 w-4" />
+                      <span>Log out</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </>
+            ) : (
+              <>
+                <Button variant="ghost" size="icon" className="relative">
+                  <ShoppingCart className="h-5 w-5" />
+                  <Badge className="absolute -top-1 -right-1 h-4 w-4 p-0 flex items-center justify-center">
+                    {itemCount}
+                  </Badge>
+                </Button>
+                <Button variant="ghost" size="icon" onClick={() => setIsAuthModalOpen(true)}>
                   <User className="h-5 w-5" />
                 </Button>
-              </div>
-            ) : (
-              <Button variant="ghost" size="icon" onClick={() => setIsAuthModalOpen(true)}>
-                <User className="h-5 w-5" />
-              </Button>
+              </>
             )}
-
-            {/* Mobile Menu Toggle */}
             <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setIsMenuOpen(!isMenuOpen)}>
               {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </Button>

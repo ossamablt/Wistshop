@@ -8,10 +8,10 @@ import { Toaster } from "@/components/ui/toaster"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "ModernShop - 2025 E-Commerce Experience",
-  description: "Next-generation shopping with AI-powered recommendations",
+  title: "Wist shop",
+  description: "shoping website wity AI-powered recommendations",
   keywords: "ecommerce, shopping, AI, modern, 2025",
-    generator: 'v0.dev'
+    generator: 'majid blt '
 }
 
 export default function RootLayout({

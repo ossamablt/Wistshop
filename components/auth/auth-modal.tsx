@@ -48,10 +48,16 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
         description: "You have been successfully logged in.",
       })
       onClose()
-    } catch (error) {
+    } catch (error: any) {
+      let errorMessage = "Please check your credentials and try again."
+      if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+        errorMessage = "Invalid email or password."
+      } else if (error.code === 'auth/too-many-requests') {
+        errorMessage = "Too many failed attempts. Please try again later."
+      }
       toast({
         title: "Login failed",
-        description: "Please check your credentials and try again.",
+        description: errorMessage,
         variant: "destructive",
       })
     } finally {
@@ -89,10 +95,18 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
         description: "Your account has been created successfully.",
       })
       onClose()
-    } catch (error) {
+    } catch (error: any) {
+      let errorMessage = "Please try again with different details."
+      if (error.code === 'auth/email-already-in-use') {
+        errorMessage = "This email is already registered. Please try logging in instead."
+      } else if (error.code === 'auth/invalid-email') {
+        errorMessage = "Please enter a valid email address."
+      } else if (error.code === 'auth/weak-password') {
+        errorMessage = "Please choose a stronger password."
+      }
       toast({
         title: "Registration failed",
-        description: "Please try again with different details.",
+        description: errorMessage,
         variant: "destructive",
       })
     } finally {
