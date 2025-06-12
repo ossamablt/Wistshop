@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/select"
 import { useToast } from "@/hooks/use-toast"
 import { addProduct } from "@/services/products"
-import { uploadImage } from "@/services/storage"
+import { uploadToCloudinary } from "@/services/cloudinary"
 import type { Product } from "@/services/products"
 
 const productSchema = z.object({
@@ -79,7 +79,7 @@ export function AddProductForm() {
     try {
       let imageUrl = ""
       if (data.image) {
-        imageUrl = await uploadImage(data.image)
+        imageUrl = await uploadToCloudinary(data.image)
       }
 
       const productData: Omit<Product, 'id' | 'createdAt' | 'updatedAt'> = {

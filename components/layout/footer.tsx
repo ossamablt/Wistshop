@@ -47,7 +47,7 @@ export function Footer() {
               <div className="h-8 w-8 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center">
                 <span className="text-white font-bold text-sm">MS</span>
               </div>
-              <span className="font-bold text-xl gradient-text">ModernShop</span>
+              <span className="font-bold text-xl gradient-text">Wistshop</span>
             </Link>
             <p className="text-muted-foreground mb-4 max-w-md">
               Experience the future of shopping with our AI-powered e-commerce platform. Discover amazing products with
@@ -67,15 +67,15 @@ export function Footer() {
             <div className="mt-6 space-y-2 text-sm text-muted-foreground">
               <div className="flex items-center space-x-2">
                 <Phone className="h-4 w-4" />
-                <span>+1 (555) 123-4567</span>
+                <span>+213542873981</span>
               </div>
               <div className="flex items-center space-x-2">
                 <Mail className="h-4 w-4" />
-                <span>support@modernshop.com</span>
+                <span>majidblt0777@gmail.com</span>
               </div>
               <div className="flex items-center space-x-2">
                 <MapPin className="h-4 w-4" />
-                <span>123 Commerce St, Tech City, TC 12345</span>
+                <span>Algiers, Sidi-marouf</span>
               </div>
             </div>
           </div>
@@ -102,7 +102,7 @@ export function Footer() {
 
         {/* Bottom Section */}
         <div className="mt-12 pt-8 border-t flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-          <div className="text-sm text-muted-foreground">© 2025 ModernShop. All rights reserved.</div>
+          <div className="text-sm text-muted-foreground">© 2025 ModernShop. All rights with Abdelmadjid belilet.</div>
 
           {/* Social Links */}
           <div className="flex space-x-4">
