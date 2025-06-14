@@ -1,5 +1,6 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { Heart, Users, Globe, Sparkles, Target, Shield, Zap } from "lucide-react"
 import { UpdatedHeader } from "@/components/layout/updated-header"
@@ -9,7 +10,48 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
+interface TeamMember {
+  name: string
+  role: string
+  image: string
+  bio: string
+}
+
+interface TimelineEvent {
+  year: string
+  title: string
+  description: string
+}
+
 export function AboutPage() {
+  const [team, setTeam] = useState<TeamMember[]>([])
+  const [timeline, setTimeline] = useState<TimelineEvent[]>([])
+
+  useEffect(() => {
+    const fetchTeam = async () => {
+      try {
+        const response = await fetch('/api/team')
+        const data = await response.json()
+        setTeam(data)
+      } catch (error) {
+        console.error('Error fetching team data:', error)
+      }
+    }
+
+    const fetchTimeline = async () => {
+      try {
+        const response = await fetch('/api/timeline')
+        const data = await response.json()
+        setTimeline(data)
+      } catch (error) {
+        console.error('Error fetching timeline data:', error)
+      }
+    }
+
+    fetchTeam()
+    fetchTimeline()
+  }, [])
+
   const stats = [
     { number: "1M+", label: "Happy Customers", icon: Users },
     { number: "50K+", label: "Products", icon: Globe },
@@ -37,56 +79,6 @@ export function AboutPage() {
       icon: Shield,
       title: "Trust",
       description: "Your security and privacy are our top priorities in everything we do.",
-    },
-  ]
-
-  const team = [
-    {
-      name: "Sarah Chen",
-      role: "CEO & Founder",
-      image: "/placeholder.svg?height=100&width=100",
-      bio: "Former tech executive with 15+ years in e-commerce and AI.",
-    },
-    {
-      name: "Marcus Rodriguez",
-      role: "CTO",
-      image: "/placeholder.svg?height=100&width=100",
-      bio: "AI researcher and full-stack developer passionate about user experience.",
-    },
-    {
-      name: "Emily Watson",
-      role: "Head of Design",
-      image: "/placeholder.svg?height=100&width=100",
-      bio: "Award-winning designer focused on creating delightful digital experiences.",
-    },
-    {
-      name: "David Kim",
-      role: "VP of Operations",
-      image: "/placeholder.svg?height=100&width=100",
-      bio: "Supply chain expert ensuring fast and reliable product delivery.",
-    },
-  ]
-
-  const timeline = [
-    {
-      year: "2023",
-      title: "The Vision",
-      description: "WishShop was founded with the vision of making online shopping more personal and magical.",
-    },
-    {
-      year: "2024",
-      title: "AI Integration",
-      description: "Launched our AI-powered recommendation engine, revolutionizing product discovery.",
-    },
-    {
-      year: "2024",
-      title: "Global Expansion",
-      description: "Expanded to serve customers in over 50 countries worldwide.",
-    },
-    {
-      year: "2025",
-      title: "The Future",
-      description: "Continuing to innovate with new AI features and sustainable shopping initiatives.",
     },
   ]
 

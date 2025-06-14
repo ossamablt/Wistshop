@@ -11,14 +11,29 @@ import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ProductCard } from "@/components/product/product-card"
-import { products } from "@/lib/mock-data"
+import type { Product } from "@/lib/types"
 
 export function DealsPage() {
+  const [products, setProducts] = useState<Product[]>([])
   const [timeLeft, setTimeLeft] = useState({
     hours: 23,
     minutes: 45,
     seconds: 30,
   })
+
+  useEffect(() => {
+    const fetchDeals = async () => {
+      try {
+        const response = await fetch('/api/products/deals')
+        const data = await response.json()
+        setProducts(data)
+      } catch (error) {
+        console.error('Error fetching deals:', error)
+      }
+    }
+
+    fetchDeals()
+  }, [])
 
   // Countdown timer
   useEffect(() => {

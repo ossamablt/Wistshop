@@ -1,5 +1,6 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import Link from "next/link"
 import Image from "next/image"
@@ -9,28 +10,60 @@ import { Footer } from "@/components/layout/footer"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { categories } from "@/lib/mock-data"
+import type { Category } from "@/lib/types"
 
 export function CategoriesPage() {
+  const [categories, setCategories] = useState<Category[]>([])
+  const [stats, setStats] = useState({
+    totalProducts: 0,
+    totalCustomers: 0,
+    satisfactionRate: 0
+  })
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch('/api/categories')
+        const data = await response.json()
+        setCategories(data)
+      } catch (error) {
+        console.error('Error fetching categories:', error)
+      }
+    }
+
+    const fetchStats = async () => {
+      try {
+        const response = await fetch('/api/stats')
+        const data = await response.json()
+        setStats(data)
+      } catch (error) {
+        console.error('Error fetching stats:', error)
+      }
+    }
+
+    fetchCategories()
+    fetchStats()
+  }, [])
+
   const featuredCategories = categories.slice(0, 3)
   const allCategories = categories
 
   const categoryStats = [
     {
       icon: Package,
-      title: "1,000+",
+      title: `${stats.totalProducts.toLocaleString()}+`,
       description: "Total Products",
       color: "text-blue-600",
     },
     {
       icon: Users,
-      title: "50K+",
+      title: `${stats.totalCustomers.toLocaleString()}+`,
       description: "Happy Customers",
       color: "text-green-600",
     },
     {
       icon: TrendingUp,
-      title: "95%",
+      title: `${stats.satisfactionRate}%`,
       description: "Satisfaction Rate",
       color: "text-purple-600",
     },
