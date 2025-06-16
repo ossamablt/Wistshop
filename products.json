@@ -1,2 +1,48 @@
-[]
+[
+  {
+    "id": "1",
+    "name": "Premium Wireless Headphones",
+    "description": "High-quality wireless headphones with noise cancellation and premium sound quality.",
+    "price": 199.99,
+    "category": "Electronics",
+    "imageUrl": "/products/headphones.jpg",
+    "stock": 15
+  },
+  {
+    "id": "2",
+    "name": "Smart Watch Series 5",
+    "description": "Advanced smartwatch with health monitoring and fitness tracking features.",
+    "price": 299.99,
+    "category": "Electronics",
+    "imageUrl": "/products/smartwatch.jpg",
+    "stock": 10
+  },
+  {
+    "id": "3",
+    "name": "Professional Camera Kit",
+    "description": "Complete camera kit for professional photography with multiple lenses.",
+    "price": 1299.99,
+    "category": "Photography",
+    "imageUrl": "/products/camera.jpg",
+    "stock": 5
+  },
+  {
+    "id": "4",
+    "name": "Designer Backpack",
+    "description": "Stylish and durable backpack with multiple compartments and laptop sleeve.",
+    "price": 89.99,
+    "category": "Fashion",
+    "imageUrl": "/products/backpack.jpg",
+    "stock": 20
+  },
+  {
+    "id": "5",
+    "name": "Wireless Gaming Mouse",
+    "description": "High-precision gaming mouse with customizable RGB lighting.",
+    "price": 79.99,
+    "category": "Gaming",
+    "imageUrl": "/products/ii.png",
+    "stock": 25
+  }
+]
   

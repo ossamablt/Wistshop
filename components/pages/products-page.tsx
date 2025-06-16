@@ -161,17 +161,6 @@ export function ProductsPage() {
     </div>
   )
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div>
-          <p className="mt-4">Loading products...</p>
-        </div>
-      </div>
-    )
-  }
-
   return (
     <div className="min-h-screen flex flex-col">
       <UpdatedHeader />
@@ -254,20 +243,20 @@ export function ProductsPage() {
                   </Button>
                 </div>
 
-                {/* Mobile Filter */}
+                {/* Mobile Filter Button */}
                 <Sheet>
                   <SheetTrigger asChild>
                     <Button variant="outline" size="sm" className="md:hidden">
-                      <SlidersHorizontal className="h-4 w-4 mr-2" />
+                      <Filter className="h-4 w-4 mr-2" />
                       Filters
                     </Button>
                   </SheetTrigger>
-                  <SheetContent side="left">
+                  <SheetContent side="left" className="w-[300px] sm:w-[400px]">
                     <SheetHeader>
                       <SheetTitle>Filters</SheetTitle>
-                      <SheetDescription>Refine your product search</SheetDescription>
+                      <SheetDescription>Filter products by category, price, and availability.</SheetDescription>
                     </SheetHeader>
-                    <div className="mt-6">
+                    <div className="py-4">
                       <FilterSidebar />
                     </div>
                   </SheetContent>
@@ -275,67 +264,26 @@ export function ProductsPage() {
               </div>
             </div>
 
-            {/* Active Filters */}
-            {filters.categories.length > 0 && (
-              <div className="flex flex-wrap gap-2 mb-6">
-                {filters.categories.map((category) => (
-                  <Badge
-                    key={category}
-                    variant="secondary"
-                    className="cursor-pointer"
-                    onClick={() => toggleCategory(category)}
-                  >
-                    {category} ×
-                  </Badge>
-                ))}
-              </div>
-            )}
-
-            <div className="flex gap-8">
-              {/* Desktop Sidebar */}
-              <aside className="hidden md:block w-64 flex-shrink-0">
-                <Card>
-                  <CardContent className="p-6">
-                    <h2 className="font-semibold mb-4 flex items-center">
-                      <Filter className="h-4 w-4 mr-2" />
-                      Filters
-                    </h2>
-                    <FilterSidebar />
-                  </CardContent>
-                </Card>
-              </aside>
-
-              {/* Products Grid */}
-              <div className="flex-1">
-                {filteredProducts.length === 0 ? (
-                  <div className="text-center py-16">
-                    <div className="text-6xl mb-4">🔍</div>
-                    <h3 className="text-xl font-semibold mb-2">No products found</h3>
-                    <p className="text-muted-foreground">Try adjusting your filters or search terms</p>
-                  </div>
-                ) : (
-                  <motion.div
-                    layout
-                    className={
-                      viewMode === "grid"
-                        ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
-                        : "space-y-4"
-                    }
-                  >
-                    {filteredProducts.map((product, index) => (
-                      <motion.div
-                        key={product.id}
-                        layout
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.3, delay: index * 0.05 }}
-                      >
-                        <ProductCard product={product} index={index} />
-                      </motion.div>
-                    ))}
-                  </motion.div>
-                )}
-              </div>
+            {/* Products Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {loading ? (
+                // Loading skeleton
+                Array.from({ length: 8 }).map((_, index) => (
+                  <Card key={index} className="animate-pulse">
+                    <div className="aspect-square bg-gray-200" />
+                    <CardContent className="p-4 space-y-2">
+                      <div className="h-4 bg-gray-200 rounded w-1/4" />
+                      <div className="h-6 bg-gray-200 rounded w-3/4" />
+                      <div className="h-4 bg-gray-200 rounded w-1/2" />
+                      <div className="h-4 bg-gray-200 rounded w-1/4" />
+                    </CardContent>
+                  </Card>
+                ))
+              ) : (
+                filteredProducts.map((product, index) => (
+                  <ProductCard key={product.id} product={product} index={index} />
+                ))
+              )}
             </div>
           </div>
         </section>

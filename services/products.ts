@@ -26,7 +26,41 @@ export interface Product {
   updatedAt?: any;
 }
 
-// Add a new product
+// Get all products from local JSON file
+export const getProducts = async (): Promise<Product[]> => {
+  try {
+    const response = await fetch('/products.json');
+    const products = await response.json();
+    return products;
+  } catch (error) {
+    console.error('Error getting products:', error);
+    throw error;
+  }
+};
+
+// Get a single product by ID
+export const getProduct = async (productId: string): Promise<Product | null> => {
+  try {
+    const products = await getProducts();
+    return products.find(p => p.id === productId) || null;
+  } catch (error) {
+    console.error('Error getting product:', error);
+    throw error;
+  }
+};
+
+// Get products by category
+export const getProductsByCategory = async (category: string): Promise<Product[]> => {
+  try {
+    const products = await getProducts();
+    return products.filter(p => p.category === category);
+  } catch (error) {
+    console.error('Error getting products by category:', error);
+    throw error;
+  }
+};
+
+// Keep Firebase functions for admin operations
 export const addProduct = async (productData: Omit<Product, 'id' | 'createdAt' | 'updatedAt'>) => {
   try {
     const productsRef = collection(db, 'products');
@@ -44,40 +78,6 @@ export const addProduct = async (productData: Omit<Product, 'id' | 'createdAt' |
   }
 };
 
-// Get all products
-export const getProducts = async (): Promise<Product[]> => {
-  try {
-    const productsRef = collection(db, 'products');
-    const q = query(productsRef, orderBy('createdAt', 'desc'));
-    const querySnapshot = await getDocs(q);
-    
-    return querySnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    } as Product));
-  } catch (error) {
-    console.error('Error getting products:', error);
-    throw error;
-  }
-};
-
-// Get a single product by ID
-export const getProduct = async (productId: string): Promise<Product | null> => {
-  try {
-    const productRef = doc(db, 'products', productId);
-    const productSnap = await getDoc(productRef);
-    
-    if (productSnap.exists()) {
-      return { id: productSnap.id, ...productSnap.data() } as Product;
-    }
-    return null;
-  } catch (error) {
-    console.error('Error getting product:', error);
-    throw error;
-  }
-};
-
-// Update a product
 export const updateProduct = async (productId: string, productData: Partial<Product>) => {
   try {
     const productRef = doc(db, 'products', productId);
@@ -94,7 +94,6 @@ export const updateProduct = async (productId: string, productData: Partial<Prod
   }
 };
 
-// Delete a product
 export const deleteProduct = async (productId: string) => {
   try {
     const productRef = doc(db, 'products', productId);
@@ -102,27 +101,6 @@ export const deleteProduct = async (productId: string) => {
     return true;
   } catch (error) {
     console.error('Error deleting product:', error);
-    throw error;
-  }
-};
-
-// Get products by category
-export const getProductsByCategory = async (category: string): Promise<Product[]> => {
-  try {
-    const productsRef = collection(db, 'products');
-    const q = query(
-      productsRef,
-      where('category', '==', category),
-      orderBy('createdAt', 'desc')
-    );
-    const querySnapshot = await getDocs(q);
-    
-    return querySnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    } as Product));
-  } catch (error) {
-    console.error('Error getting products by category:', error);
     throw error;
   }
 }; 
