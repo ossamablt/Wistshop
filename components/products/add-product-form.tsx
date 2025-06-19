@@ -23,9 +23,10 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { useToast } from "@/hooks/use-toast"
-import { addProduct } from "@/services/products"
-import { uploadToCloudinary } from "@/services/cloudinary"
+import { addProduct, updateProduct, getProductImagePath } from "@/services/products"
 import type { Product } from "@/services/products"
+import { useRouter } from "next/navigation"
+import Image from "next/image"
 
 const productSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -34,13 +35,8 @@ const productSchema = z.object({
     message: "Price must be a positive number",
   }),
   category: z.string().min(1, "Please select a category"),
-  image: z.any()
-    .refine((file) => file, "Image is required.")
-    .refine((file) => file?.size <= 5000000, `Max image size is 5MB.`) // 5MB
-    .refine(
-      (file) => ["image/jpeg", "image/jpg", "image/png", "image/webp"].includes(file?.type),
-      "Only .jpg, .jpeg, .png and .webp formats are supported."
-    ),
+  image: z.string().min(1, "Please select a main image"),
+  images: z.array(z.string()).optional(),
   stock: z.string().refine((val) => !isNaN(parseInt(val)) && parseInt(val) >= 0, {
     message: "Stock must be a non-negative number",
   }),
@@ -59,51 +55,86 @@ const categories = [
   "Other",
 ]
 
-export function AddProductForm() {
+// List of available images in /public/images/
+const availableImages = [
+  "ii.png",
+  "smart watch.jpg",
+  "smart watch1.jpg",
+  "smartwatch3.jpg",
+  "headphone.jpg",
+  "headphones.jpg",
+  "runnigShoes.jpg",
+  "runningShoes2.jpg",
+  "runningShoes.jpg",
+  // Add more image filenames as needed
+]
+
+interface AddProductFormProps {
+  initialData?: Product
+}
+
+export function AddProductForm({ initialData }: AddProductFormProps) {
   const [isLoading, setIsLoading] = useState(false)
+  const [selectedImages, setSelectedImages] = useState<string[]>(initialData?.images || [])
   const { toast } = useToast()
+  const router = useRouter()
 
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(productSchema),
     defaultValues: {
-      name: "",
-      description: "",
-      price: "",
-      category: "",
-      stock: "",
+      name: initialData?.name || "",
+      description: initialData?.description || "",
+      price: initialData?.price?.toString() || "",
+      category: initialData?.category || "",
+      image: initialData?.image || "",
+      images: initialData?.images || [],
+      stock: initialData?.stock?.toString() || "",
     },
   })
+
+  const handleImageToggle = (imageName: string) => {
+    setSelectedImages(prev => {
+      if (prev.includes(imageName)) {
+        return prev.filter(img => img !== imageName)
+      } else {
+        return [...prev, imageName]
+      }
+    })
+  }
 
   const onSubmit = async (data: ProductFormValues) => {
     setIsLoading(true)
     try {
-      let imageUrl = ""
-      if (data.image) {
-        imageUrl = await uploadToCloudinary(data.image)
-      }
-
       const productData: Omit<Product, 'id' | 'createdAt' | 'updatedAt'> = {
         name: data.name,
         description: data.description,
         price: parseFloat(data.price),
         category: data.category,
-        imageUrl: imageUrl,
+        image: data.image,
+        images: selectedImages,
         stock: parseInt(data.stock),
       }
 
-      await addProduct(productData)
+      if (initialData?.id) {
+        await updateProduct(initialData.id, productData)
+        toast({
+          title: "Success",
+          description: "Product updated successfully",
+        })
+      } else {
+        await addProduct(productData)
+        toast({
+          title: "Success",
+          description: "Product added successfully",
+        })
+      }
       
-      toast({
-        title: "Product added successfully",
-        description: "Your product has been added to the store.",
-      })
-      
-      form.reset()
+      router.push("/admin/products")
     } catch (error) {
       console.error("Error in onSubmit:", error)
       toast({
-        title: "Error adding product",
-        description: "There was a problem adding your product. Please try again.",
+        title: "Error",
+        description: "There was a problem saving your product. Please try again.",
         variant: "destructive",
       })
     } finally {
@@ -204,26 +235,74 @@ export function AddProductForm() {
         <FormField
           control={form.control}
           name="image"
-          render={({ field: { value, onChange, ...fieldProps } }) => (
+          render={({ field }) => (
             <FormItem>
-              <FormLabel>Product Image</FormLabel>
-              <FormControl>
-                <Input
-                  type="file"
-                  accept="image/png, image/jpeg, image/webp"
-                  onChange={(event) => {
-                    onChange(event.target.files && event.target.files[0]);
-                  }}
-                  {...fieldProps}
-                />
-              </FormControl>
+              <FormLabel>Main Product Image</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select main image" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {availableImages.map((image) => (
+                    <SelectItem key={image} value={image}>
+                      {image}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="images"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Additional Images</FormLabel>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {availableImages.map((image) => (
+                  <div
+                    key={image}
+                    className={`relative cursor-pointer rounded-lg border-2 p-2 transition-all ${
+                      selectedImages.includes(image)
+                        ? "border-primary bg-primary/10"
+                        : "border-gray-200 hover:border-gray-300"
+                    }`}
+                    onClick={() => handleImageToggle(image)}
+                  >
+                    <div className="aspect-square relative">
+                      <Image
+                        src={getProductImagePath(image)}
+                        alt={image}
+                        fill
+                        className="object-cover rounded-md"
+                      />
+                    </div>
+                    <div className="mt-2 text-center">
+                      <input
+                        type="checkbox"
+                        checked={selectedImages.includes(image)}
+                        onChange={() => handleImageToggle(image)}
+                        className="mr-2"
+                      />
+                      <span className="text-sm">{image}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
               <FormMessage />
             </FormItem>
           )}
         />
 
         <Button type="submit" className="w-full" disabled={isLoading}>
-          {isLoading ? "Adding Product..." : "Add Product"}
+          {isLoading 
+            ? (initialData ? "Updating Product..." : "Adding Product...") 
+            : (initialData ? "Update Product" : "Add Product")}
         </Button>
       </form>
     </Form>

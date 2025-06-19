@@ -12,6 +12,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import type { Product } from "@/services/products"
 import { useCart } from "@/lib/cart-context"
 import { useToast } from "@/hooks/use-toast"
+import { getProductImagePath } from "@/services/products"
 
 interface ProductCardProps {
   product: Product
@@ -27,7 +28,13 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    addToCart(product)
+    addToCart({
+      id: product.id!,
+      name: product.name,
+      price: product.price,
+      imageUrl: product.imageUrl,
+      quantity: 1,
+    })
     toast({
       title: "Added to cart",
       description: `${product.name} has been added to your cart.`,
@@ -59,9 +66,11 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
             {/* Product Image */}
             <div className="aspect-square relative bg-gray-100">
               <Image
-                src={product.imageUrl || "/placeholder.svg"}
+                src={getProductImagePath(product.image)}
                 alt={product.name}
                 fill
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                loading="lazy"
                 className="object-cover transition-transform duration-300 group-hover:scale-110"
               />
 
@@ -88,6 +97,19 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
               >
                 <Heart className={`h-4 w-4 ${isWishlisted ? "fill-red-500 text-red-500" : "text-gray-600"}`} />
               </Button>
+
+              {/* Color Swatches */}
+              {product.colors && product.colors.length > 0 && (
+                <div className="absolute bottom-2 left-2 flex space-x-1">
+                  {product.colors.map((color) => (
+                    <div
+                      key={color}
+                      className="w-4 h-4 rounded-full border border-white shadow-sm"
+                      style={{ backgroundColor: color.toLowerCase() }}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Product Info */}
