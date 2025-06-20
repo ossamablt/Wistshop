@@ -135,9 +135,10 @@ export function ProductsPage() {
           <Slider
             value={filters.priceRange}
             onValueChange={(value) => updateFilter("priceRange", value)}
+            onValueCommit={(value) => updateFilter("priceRange", value)}
             max={1000}
             min={0}
-            step={10}
+            step={1}
             className="mb-2"
           />
           <div className="flex justify-between text-sm text-muted-foreground">

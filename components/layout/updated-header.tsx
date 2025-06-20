@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 import { motion, AnimatePresence } from "framer-motion"
 import { Search, ShoppingCart, User, Menu, X, Heart, Bell, LogOut, Settings, UserCircle } from "lucide-react"
@@ -21,14 +21,26 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useToast } from "@/hooks/use-toast"
+import { useWishlist } from "@/lib/wishlist-context"
 
 export function UpdatedHeader() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
-  const { itemCount } = useCart()
+  const { totalItems } = useCart()
   const { user, logout } = useAuth()
   const { toast } = useToast()
+  const { items: wishlistItems } = useWishlist()
+  const [wishlistPulse, setWishlistPulse] = useState(false)
+  const prevWishlistCount = useRef(wishlistItems.length)
+
+  useEffect(() => {
+    if (wishlistItems.length > prevWishlistCount.current) {
+      setWishlistPulse(true)
+      setTimeout(() => setWishlistPulse(false), 600)
+    }
+    prevWishlistCount.current = wishlistItems.length
+  }, [wishlistItems.length])
 
   const handleLogout = async () => {
     try {
@@ -95,73 +107,57 @@ export function UpdatedHeader() {
           {/* Right Actions */}
           <div className="flex items-center gap-2">
             <ThemeToggle />
-            {user ? (
-              <>
-                <Button variant="ghost" size="icon" className="relative">
-                  <Heart className="h-5 w-5" />
-                  <Badge className="absolute -top-1 -right-1 h-4 w-4 p-0 flex items-center justify-center">
-                    0
-                  </Badge>
-                </Button>
-                <Button variant="ghost" size="icon" className="relative">
-                  <Bell className="h-5 w-5" />
-                  <Badge className="absolute -top-1 -right-1 h-4 w-4 p-0 flex items-center justify-center">
-                    0
-                  </Badge>
-                </Button>
-                <Button variant="ghost" size="icon" className="relative">
-                  <ShoppingCart className="h-5 w-5" />
-                  <Badge className="absolute -top-1 -right-1 h-4 w-4 p-0 flex items-center justify-center">
-                    {itemCount}
-                  </Badge>
-                </Button>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon">
-                      <User className="h-5 w-5" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-56">
-                    <DropdownMenuLabel className="font-normal">
-                      <div className="flex flex-col space-y-1">
-                        <p className="text-sm font-medium leading-none">{user.name}</p>
-                        <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
-                      </div>
-                    </DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild>
-                      <Link href="/profile" className="cursor-pointer">
-                        <UserCircle className="mr-2 h-4 w-4" />
-                        <span>Profile</span>
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link href="/settings" className="cursor-pointer">
-                        <Settings className="mr-2 h-4 w-4" />
-                        <span>Settings</span>
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-red-600">
-                      <LogOut className="mr-2 h-4 w-4" />
-                      <span>Log out</span>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </>
-            ) : (
-              <>
-                <Button variant="ghost" size="icon" className="relative">
-                  <ShoppingCart className="h-5 w-5" />
-                  <Badge className="absolute -top-1 -right-1 h-4 w-4 p-0 flex items-center justify-center">
-                    {itemCount}
-                  </Badge>
-                </Button>
-                <Button variant="ghost" size="icon" onClick={() => setIsAuthModalOpen(true)}>
+            <Link href="/wishlist" className={`relative ${wishlistPulse ? "animate-pulse" : ""} rounded-full p-2 hover:bg-accent transition-colors`} title="View wishlist">
+              <Heart className="h-5 w-5" />
+              {wishlistItems.length > 0 && (
+                <Badge className="absolute -top-1 -right-1 h-4 w-4 p-0 flex items-center justify-center">{wishlistItems.length}</Badge>
+              )}
+            </Link>
+            <Button variant="ghost" size="icon" className="relative">
+              <Bell className="h-5 w-5" />
+              <Badge className="absolute -top-1 -right-1 h-4 w-4 p-0 flex items-center justify-center">
+                0
+              </Badge>
+            </Button>
+            <Button variant="ghost" size="icon" className="relative">
+              <ShoppingCart className="h-5 w-5" />
+              <Badge className="absolute -top-1 -right-1 h-4 w-4 p-0 flex items-center justify-center">
+                {totalItems}
+              </Badge>
+            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon">
                   <User className="h-5 w-5" />
                 </Button>
-              </>
-            )}
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel className="font-normal">
+                  <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-medium leading-none">{user?.name}</p>
+                    <p className="text-xs leading-none text-muted-foreground">{user?.email}</p>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link href="/profile" className="cursor-pointer">
+                    <UserCircle className="mr-2 h-4 w-4" />
+                    <span>Profile</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/settings" className="cursor-pointer">
+                    <Settings className="mr-2 h-4 w-4" />
+                    <span>Settings</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-red-600">
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Log out</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setIsMenuOpen(!isMenuOpen)}>
               {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </Button>

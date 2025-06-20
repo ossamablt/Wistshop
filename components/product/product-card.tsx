@@ -13,6 +13,8 @@ import type { Product } from "@/services/products"
 import { useCart } from "@/lib/cart-context"
 import { useToast } from "@/hooks/use-toast"
 import { getProductImagePath } from "@/services/products"
+import { useWishlist } from "@/lib/wishlist-context"
+import { useRouter } from "next/navigation"
 
 interface ProductCardProps {
   product: Product
@@ -21,9 +23,10 @@ interface ProductCardProps {
 
 export function ProductCard({ product, index = 0 }: ProductCardProps) {
   const [isHovered, setIsHovered] = useState(false)
-  const [isWishlisted, setIsWishlisted] = useState(false)
   const { addToCart } = useCart()
   const { toast } = useToast()
+  const { addToWishlist, removeFromWishlist, isWishlisted } = useWishlist()
+  const router = useRouter()
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault()
@@ -32,7 +35,7 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
       id: product.id!,
       name: product.name,
       price: product.price,
-      imageUrl: product.imageUrl,
+      imageUrl: product.image,
       quantity: 1,
     })
     toast({
@@ -44,11 +47,20 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
   const handleWishlist = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    setIsWishlisted(!isWishlisted)
-    toast({
-      title: isWishlisted ? "Removed from wishlist" : "Added to wishlist",
-      description: `${product.name} has been ${isWishlisted ? "removed from" : "added to"} your wishlist.`,
-    })
+    if (isWishlisted(product.id!)) {
+      removeFromWishlist(product.id!)
+      toast({
+        title: "Removed from wishlist",
+        description: `${product.name} has been removed from your wishlist.`,
+      })
+    } else {
+      addToWishlist(product)
+      toast({
+        title: "Added to wishlist",
+        description: `${product.name} has been added to your wishlist.`,
+      })
+      // Animation will be handled in the header
+    }
   }
 
   return (
@@ -95,7 +107,7 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
                 className="absolute top-2 right-2 rounded-full bg-white/80 hover:bg-white"
                 onClick={handleWishlist}
               >
-                <Heart className={`h-4 w-4 ${isWishlisted ? "fill-red-500 text-red-500" : "text-gray-600"}`} />
+                <Heart className={`h-4 w-4 ${isWishlisted(product.id!) ? "fill-red-500 text-red-500" : "text-gray-600"}`} />
               </Button>
 
               {/* Color Swatches */}

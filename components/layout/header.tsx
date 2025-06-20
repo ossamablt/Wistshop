@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 import { motion, AnimatePresence } from "framer-motion"
 import { Search, ShoppingCart, User, Menu, X, Heart, Bell } from "lucide-react"
@@ -11,13 +11,18 @@ import { useCart } from "@/lib/cart-context"
 import { useAuth } from "@/lib/auth-context"
 import { AuthModal } from "@/components/auth/auth-modal"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { useWishlist } from "@/lib/wishlist-context"
+import { Slider } from "@/components/ui/slider"
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
-  const { itemCount } = useCart()
+  const { totalItems } = useCart()
   const { user, logout } = useAuth()
+  const { items: wishlistItems } = useWishlist()
+  const [wishlistPulse, setWishlistPulse] = useState(false)
+  const prevWishlistCount = useRef(wishlistItems.length)
 
   const navigation = [
     { name: "Home", href: "/" },
@@ -26,6 +31,16 @@ export function Header() {
     { name: "Deals", href: "/deals" },
     { name: "About", href: "/about" },
   ]
+
+  useEffect(() => {
+    if (wishlistItems.length > prevWishlistCount.current) {
+      setWishlistPulse(true)
+      setTimeout(() => setWishlistPulse(false), 600)
+    }
+    prevWishlistCount.current = wishlistItems.length
+  }, [wishlistItems.length])
+
+  console.log('Wishlist count:', wishlistItems.length)
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -79,19 +94,21 @@ export function Header() {
             </Button>
 
             {/* Wishlist */}
-            <Button variant="ghost" size="icon" className="relative">
+            <Link href="/wishlist" className={`relative ${wishlistPulse ? "animate-pulse" : ""} rounded-full p-2 hover:bg-accent transition-colors`} title="View wishlist">
               <Heart className="h-5 w-5" />
-              <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs">5</Badge>
-            </Button>
+              {wishlistItems.length > 0 && (
+                <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs">{wishlistItems.length}</Badge>
+              )}
+            </Link>
 
             {/* Cart */}
             <Link href="/cart">
               <Button variant="ghost" size="icon" className="relative">
                 <ShoppingCart className="h-5 w-5" />
-                {itemCount > 0 && (
+                {totalItems > 0 && (
                   <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="absolute -top-1 -right-1">
                     <Badge className="h-5 w-5 flex items-center justify-center p-0 text-xs pulse-glow">
-                      {itemCount}
+                      {totalItems}
                     </Badge>
                   </motion.div>
                 )}
