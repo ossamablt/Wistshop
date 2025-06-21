@@ -19,16 +19,39 @@ export function NewsletterSection() {
     e.preventDefault()
     setIsLoading(true)
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    try {
+      const response = await fetch('/api/newsletter', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      })
 
-    toast({
-      title: "Successfully subscribed!",
-      description: "Welcome to ModernShop! Check your email for a special welcome offer.",
-    })
+      const data = await response.json()
 
-    setEmail("")
-    setIsLoading(false)
+      if (response.ok) {
+        toast({
+          title: "Successfully subscribed! 🎉",
+          description: "Check your email for your welcome discount code!",
+        })
+        setEmail("")
+      } else {
+        toast({
+          title: "Subscription failed",
+          description: data.error || "Something went wrong. Please try again.",
+          variant: "destructive",
+        })
+      }
+    } catch (error) {
+      toast({
+        title: "Subscription failed",
+        description: "Network error. Please check your connection and try again.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const benefits = [
