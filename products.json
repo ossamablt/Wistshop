@@ -1,2 +1,111 @@
-[]
+[
+  {
+    "name": "Wireless Bluetooth Headphones",
+    "description": "High-quality wireless headphones with noise cancellation and long battery life.",
+    "price": 99.99,
+    "category": "Electronics",
+    "image": "headphone.jpg",
+    "stock": 25,
+    "colors": ["Black", "White", "Blue"]
+  },
+  {
+    "name": "Premium Over-Ear Headphones",
+    "description": "Professional-grade over-ear headphones for music enthusiasts.",
+    "price": 149.99,
+    "category": "Headphones",
+    "image": "headphones.jpg",
+    "stock": 15,
+    "colors": ["Black", "Silver"]
+  },
+  {
+    "name": "Smart Fitness Watch",
+    "description": "Advanced smartwatch with health monitoring and GPS tracking.",
+    "price": 299.99,
+    "category": "Smartwatch",
+    "image": "Smartwatch.jpg",
+    "stock": 30,
+    "colors": ["Black", "Silver", "Rose Gold"]
+  },
+  {
+    "name": "Premium Smart Watch",
+    "description": "Luxury smartwatch with premium features and elegant design.",
+    "price": 399.99,
+    "category": "Smart Watch",
+    "image": "Smart watch1.jpg",
+    "stock": 20,
+    "colors": ["Black", "Gold"]
+  },
+  {
+    "name": "Advanced Smart Watch Pro",
+    "description": "Professional smartwatch with advanced health metrics and sports tracking.",
+    "price": 499.99,
+    "category": "Smart Watch",
+    "image": "smartwatch3.jpg",
+    "stock": 12,
+    "colors": ["Black", "Titanium"]
+  },
+  {
+    "name": "Professional Running Shoes",
+    "description": "High-performance running shoes for athletes and fitness enthusiasts.",
+    "price": 129.99,
+    "category": "Running Shoes",
+    "image": "runningShoes.jpg",
+    "stock": 40,
+    "colors": ["Blue", "Red", "Black"]
+  },
+  {
+    "name": "Lightweight Running Shoes",
+    "description": "Ultra-lightweight running shoes for speed and comfort.",
+    "price": 89.99,
+    "category": "Running Shoes",
+    "image": "runnigShoes.jpg",
+    "stock": 35,
+    "colors": ["White", "Gray", "Orange"]
+  },
+  {
+    "name": "Premium Sports Shoes",
+    "description": "Professional sports shoes for various athletic activities.",
+    "price": 159.99,
+    "category": "Sports",
+    "image": "runningShoes2.jpg",
+    "stock": 28,
+    "colors": ["Black", "White", "Green"]
+  },
+  {
+    "name": "Wireless Earbuds",
+    "description": "Compact wireless earbuds with crystal clear sound quality.",
+    "price": 79.99,
+    "category": "Electronics",
+    "image": "ii.png",
+    "stock": 50,
+    "colors": ["White", "Black", "Pink"]
+  },
+  {
+    "name": "Gaming Headset",
+    "description": "Professional gaming headset with surround sound and noise cancellation.",
+    "price": 129.99,
+    "category": "Electronics",
+    "image": "ii.png",
+    "stock": 22,
+    "colors": ["Black", "Red"]
+  },
+  {
+    "name": "Casual Sneakers",
+    "description": "Comfortable casual sneakers for everyday wear.",
+    "price": 69.99,
+    "category": "Clothing",
+    "image": "runningShoes.jpg",
+    "stock": 45,
+    "colors": ["White", "Black", "Gray"]
+  },
+  {
+    "name": "Fitness Tracker",
+    "description": "Basic fitness tracker with heart rate monitoring and step counting.",
+    "price": 49.99,
+    "category": "Electronics",
+    "image": "ii.png",
+    "stock": 60,
+    "colors": ["Black", "Blue", "Pink"]
+  }
+]
   

@@ -10,7 +10,15 @@ import { Footer } from "@/components/layout/footer"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import type { Category } from "@/lib/types"
+import { getProducts } from "@/services/products"
+import type { Product } from "@/services/products"
+
+interface Category {
+  id: string
+  name: string
+  productCount: number
+  image: string
+}
 
 export function CategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([])
@@ -19,31 +27,69 @@ export function CategoriesPage() {
     totalCustomers: 0,
     satisfactionRate: 0
   })
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const fetchCategories = async () => {
+    const fetchData = async () => {
       try {
-        const response = await fetch('/api/categories')
-        const data = await response.json()
-        setCategories(data)
+        setLoading(true)
+        // Fetch products directly from Firebase like the products page does
+        const products = await getProducts()
+        
+        // Calculate total products
+        const totalProducts = products.length
+        
+        // Group products by category and count them
+        const categoryCounts = products.reduce((acc, product) => {
+          const category = product.category
+          acc[category] = (acc[category] || 0) + 1
+          return acc
+        }, {} as Record<string, number>)
+        
+        // Create categories with real product counts
+        const categoriesData = Object.entries(categoryCounts).map(([name, productCount], index) => ({
+          id: `category-${index + 1}`,
+          name,
+          productCount,
+          image: getCategoryImage(name)
+        }))
+        
+        setCategories(categoriesData)
+        setStats({
+          totalProducts,
+          totalCustomers: 1500, // Placeholder - could be enhanced with real user data
+          satisfactionRate: 98 // Placeholder - could be calculated from actual reviews
+        })
       } catch (error) {
-        console.error('Error fetching categories:', error)
+        console.error('Error fetching data:', error)
+      } finally {
+        setLoading(false)
       }
     }
 
-    const fetchStats = async () => {
-      try {
-        const response = await fetch('/api/stats')
-        const data = await response.json()
-        setStats(data)
-      } catch (error) {
-        console.error('Error fetching stats:', error)
-      }
-    }
-
-    fetchCategories()
-    fetchStats()
+    fetchData()
   }, [])
+
+  // Helper function to get category image based on available images
+  const getCategoryImage = (categoryName: string): string => {
+    const categoryImageMap: Record<string, string> = {
+      'Electronics': '/images/ii.png',
+      'Smartwatch': '/images/Smartwatch.jpg',
+      'Smart Watch': '/images/Smart watch1.jpg',
+      'Headphones': '/images/headphones.jpg',
+      'Headphone': '/images/headphone.jpg',
+      'Running Shoes': '/images/runningShoes.jpg',
+      'Sports': '/images/runningShoes2.jpg',
+      'Clothing': '/images/runningShoes.jpg',
+      'Books': '/images/ii.png',
+      'Home & Garden': '/images/ii.png',
+      'Beauty': '/images/ii.png',
+      'Toys': '/images/ii.png',
+      'Other': '/images/ii.png'
+    }
+    
+    return categoryImageMap[categoryName] || '/images/ii.png'
+  }
 
   const featuredCategories = categories.slice(0, 3)
   const allCategories = categories
@@ -68,6 +114,17 @@ export function CategoriesPage() {
       color: "text-purple-600",
     },
   ]
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div>
+          <p className="mt-4">Loading categories...</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen flex flex-col">
