@@ -7,7 +7,11 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "export": "next export"
+    "export": "next build && next export",
+    "deploy": "npm run build && firebase deploy",
+    "deploy:hosting": "npm run build && firebase deploy --only hosting",
+    "deploy:firestore": "firebase deploy --only firestore",
+    "deploy:storage": "firebase deploy --only storage"
   },
   "dependencies": {
     "@emotion/is-prop-valid": "latest",
@@ -54,9 +58,9 @@
     "next-cloudinary": "^6.16.0",
     "next-themes": "latest",
     "nodemailer": "^7.0.3",
-    "react": "^19",
+    "react": "^18.3.1",
     "react-day-picker": "^8.10.1",
-    "react-dom": "^19",
+    "react-dom": "^18.3.1",
     "react-hook-form": "^7.54.1",
     "react-resizable-panels": "^2.1.7",
     "recharts": "2.15.0",
@@ -69,8 +73,8 @@
   },
   "devDependencies": {
     "@types/node": "^22.15.31",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
     "postcss": "^8",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.8.3"

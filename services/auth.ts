@@ -4,6 +4,7 @@ import {
   signOut,
   updateProfile,
   User,
+  onAuthStateChanged,
 } from 'firebase/auth';
 import { auth } from './firebase';
 
@@ -42,4 +43,8 @@ export const logoutUser = async () => {
 
 export const getCurrentUser = (): User | null => {
   return auth.currentUser;
+};
+
+export const onAuthStateChange = (callback: (user: User | null) => void) => {
+  return onAuthStateChanged(auth, callback);
 }; 

@@ -126,6 +126,11 @@ export default function ProductsDashboard() {
                       alt={product.name}
                       fill
                       className="object-cover rounded-md"
+                      onError={(e) => {
+                        // Fallback to placeholder if image fails to load
+                        const target = e.target as HTMLImageElement
+                        target.src = "/placeholder.svg"
+                      }}
                     />
                   </div>
                 </TableCell>

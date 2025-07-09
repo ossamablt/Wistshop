@@ -39,14 +39,22 @@ export const PRODUCT_IMAGES: Record<string, string> = {
   // Add more product images as needed
 }
 
-// Helper function to get product image
-export const getProductImage = (productId: string): string => {
-  return PRODUCT_IMAGES[productId] || "/placeholder.svg"
-}
-
 // Helper function to get product image path
 export const getProductImagePath = (imageFilename: string): string => {
-  return `/images/${imageFilename}`
+  // Handle common image path issues
+  if (!imageFilename) return "/placeholder.svg"
+  
+  // Fix common filename issues
+  const fixedFilename = imageFilename
+    .replace(/smart watch\.jpg/i, "Smart watch1.jpg") // Fix lowercase and missing number
+    .replace(/smartwatch3\.jpg/i, "smartwatch3.jpg") // Ensure correct case
+  
+  return `/images/${fixedFilename}`
+}
+
+// Helper function to get product image with fallback
+export const getProductImage = (productId: string): string => {
+  return PRODUCT_IMAGES[productId] || "/placeholder.svg"
 }
 
 // Add a new product

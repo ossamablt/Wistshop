@@ -17,12 +17,20 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<Product[]>([])
 
   useEffect(() => {
-    const saved = localStorage.getItem("wishlist")
-    if (saved) setItems(JSON.parse(saved))
+    try {
+      const saved = localStorage.getItem("wishlist")
+      if (saved) setItems(JSON.parse(saved))
+    } catch (error) {
+      console.error("Error loading wishlist from localStorage:", error)
+    }
   }, [])
 
   useEffect(() => {
-    localStorage.setItem("wishlist", JSON.stringify(items))
+    try {
+      localStorage.setItem("wishlist", JSON.stringify(items))
+    } catch (error) {
+      console.error("Error saving wishlist to localStorage:", error)
+    }
   }, [items])
 
   const addToWishlist = (item: Product) => {

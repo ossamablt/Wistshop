@@ -84,6 +84,11 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 loading="lazy"
                 className="object-cover transition-transform duration-300 group-hover:scale-110"
+                onError={(e) => {
+                  // Fallback to placeholder if image fails to load
+                  const target = e.target as HTMLImageElement
+                  target.src = "/placeholder.svg"
+                }}
               />
 
               {/* Overlay Actions */}

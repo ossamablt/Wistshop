@@ -3,7 +3,7 @@
 import type React from "react"
 import { createContext, useContext, useState, useEffect } from "react"
 import { User as FirebaseUser } from "firebase/auth"
-import { loginUser, registerUser, logoutUser, getCurrentUser } from "@/services/auth"
+import { loginUser, registerUser, logoutUser, onAuthStateChange } from "@/services/auth"
 
 interface User {
   id: string
@@ -28,9 +28,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     // Listen for auth state changes
-    const unsubscribe = getCurrentUser()
-    if (unsubscribe) {
-      const firebaseUser = unsubscribe
+    const unsubscribe = onAuthStateChange((firebaseUser) => {
       if (firebaseUser) {
         const userData: User = {
           id: firebaseUser.uid,
@@ -39,9 +37,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           avatar: firebaseUser.photoURL || '/placeholder.svg?height=40&width=40',
         }
         setUser(userData)
+      } else {
+        setUser(null)
       }
-    }
-    setIsLoading(false)
+      setIsLoading(false)
+    })
+
+    // Cleanup subscription on unmount
+    return () => unsubscribe()
   }, [])
 
   const login = async (email: string, password: string) => {

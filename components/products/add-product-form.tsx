@@ -58,9 +58,9 @@ const categories = [
 // List of available images in /public/images/
 const availableImages = [
   "ii.png",
-  "smart watch.jpg",
-  "smart watch1.jpg",
+  "Smart watch1.jpg",
   "smartwatch3.jpg",
+  "Smartwatch.jpg",
   "headphone.jpg",
   "headphones.jpg",
   "runnigShoes.jpg",
@@ -280,6 +280,11 @@ export function AddProductForm({ initialData }: AddProductFormProps) {
                         alt={image}
                         fill
                         className="object-cover rounded-md"
+                        onError={(e) => {
+                          // Fallback to placeholder if image fails to load
+                          const target = e.target as HTMLImageElement
+                          target.src = "/placeholder.svg"
+                        }}
                       />
                     </div>
                     <div className="mt-2 text-center">

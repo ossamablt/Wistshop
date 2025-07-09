@@ -109,6 +109,11 @@ export default function ProductDetails() {
                   priority
                   quality={90}
                   className="object-cover"
+                  onError={(e) => {
+                    // Fallback to placeholder if image fails to load
+                    const target = e.target as HTMLImageElement
+                    target.src = "/placeholder.svg"
+                  }}
                 />
               </div>
 
@@ -130,6 +135,11 @@ export default function ProductDetails() {
                         alt={`${product?.name} - Image ${index + 1}`}
                         fill
                         className="object-cover"
+                        onError={(e) => {
+                          // Fallback to placeholder if image fails to load
+                          const target = e.target as HTMLImageElement
+                          target.src = "/placeholder.svg"
+                        }}
                       />
                     </button>
                   ))}
