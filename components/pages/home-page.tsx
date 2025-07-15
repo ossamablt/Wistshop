@@ -3,7 +3,7 @@ import { Footer } from "@/components/layout/footer"
 import { HeroSection } from "@/components/home/hero-section"
 import { FeaturedCategories } from "@/components/home/featured-categories"
 import { ProductShowcase } from "@/components/home/product-showcase"
-import { AIRecommendations } from "@/components/home/ai-recommendations"
+
 import { NewsletterSection } from "@/components/home/newsletter-section"
 
 export function HomePage() {
@@ -14,7 +14,7 @@ export function HomePage() {
         <HeroSection />
         <FeaturedCategories />
         <ProductShowcase />
-        <AIRecommendations />
+  
         <NewsletterSection />
       </main>
       <Footer />

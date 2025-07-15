@@ -29,7 +29,7 @@ export function Header() {
     { name: "Products", href: "/products" },
     { name: "Categories", href: "/categories" },
     { name: "Deals", href: "/deals" },
-    { name: "About", href: "/about" },
+   
   ]
 
   useEffect(() => {

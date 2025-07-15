@@ -53,7 +53,13 @@ export function DealsPage() {
     return () => clearInterval(timer)
   }, [])
 
-  const saleProducts = products.filter((p) => p.tags.includes("Sale"))
+  const saleProducts = products
+    .filter((p) => p.tags.includes("Sale"))
+    .map((p) => ({
+      ...p,
+      image: p.images?.[0] || "/images/placeholder.jpg", // use first image or a placeholder
+      stock: typeof p.inStock === "number" ? p.inStock : (p.inStock ? 1 : 0)
+    }));
   const featuredDeals = saleProducts.slice(0, 4)
   const flashDeals = saleProducts.slice(0, 6)
   const dailyDeals = saleProducts.slice(2, 8)
