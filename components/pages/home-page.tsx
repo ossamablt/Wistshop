@@ -14,7 +14,6 @@ export function HomePage() {
         <HeroSection />
         <FeaturedCategories />
         <ProductShowcase />
-  
         <NewsletterSection />
       </main>
       <Footer />
